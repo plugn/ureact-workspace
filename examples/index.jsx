@@ -1,6 +1,6 @@
 import {render} from  'react-dom';
-import UreactPackageBoilerplate from '../src/index';
+import Workspace from '../src/index';
 
 render(
-  <UreactPackageBoilerplate/>
+  <Workspace/>
 , document.getElementById('app'));

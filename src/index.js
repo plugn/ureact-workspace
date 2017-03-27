@@ -1,1 +1,1 @@
-export {default as default} from './ureact-package-boilerplate';
+export {default as default} from './workspace';
