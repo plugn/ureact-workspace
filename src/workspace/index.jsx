@@ -5,7 +5,7 @@ export default class Workspace extends React.Component {
   render() {
     return (
       <div styleName='container'>
-        Hello, I'm a Workspace
+        Hello, I'm a Workspace with conf = {JSON.stringify(this.props.conf)}
       </div>
     );
   }
