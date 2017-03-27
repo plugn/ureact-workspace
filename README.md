@@ -13,8 +13,8 @@
 
 `npm install`
 
-`gulp` Start a dev server on localhost:5000 running the example code in /examples
+`npm start` Start a dev server on localhost:5000 running the example code in /examples
 
-`gulp release` Push a release to npm
+`npm run release` Push a release to npm
 
 See [ureact-package](https://github.com/udacity/ureact-package) for more info.
