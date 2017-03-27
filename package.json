@@ -1,0 +1,39 @@
+{
+  "name": "@udacity/ureact-workspace",
+  "description": "Workspace and WorkspaceEditor components for rendering and configuring student workspaces",
+  "repository": "https://github.com/udacity/ureact-workspace",
+  "version": "0.0.0",
+  "scripts": {
+    "ucrtools:bump": "./node_modules/.bin/ucrtools b",
+    "ucrtools:changelog": "./node_modules/.bin/ucrtools c",
+    "test": "gulp test"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/@udacity/conventional-release-tools/build/commitizen-config"
+    },
+    "pre-git": {
+      "enabled": true,
+      "msg-pattern": "^((fixup! |squash! |revert:)?(\\[(?:.*)\\] )?(\\w+)(?:\\(([^\\)\\s]+)\\))+: (.+))(?:\n|$)"
+    }
+  },
+  "main": "build/index.js",
+  "author": "warren@udacity.com",
+  "license": "UNLICENSED",
+  "files": [
+    "build"
+  ],
+  "dependencies": {
+    "@udacity/ureact-styles": "^1.6.0"
+  },
+  "devDependencies": {
+    "@udacity/eslint-config-ureact": "^1.0.10",
+    "@udacity/ureact-package": "^3.1.0",
+    "babel-eslint": "^7.1.1",
+    "eslint": "^3.11.1",
+    "eslint-plugin-react": "^6.7.1",
+    "react": ">=0.14.0",
+    "react-addons-test-utils": ">=0.14.0",
+    "react-dom": ">=0.14.0"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "extends": "@udacity/eslint-config-ureact",
+  "rules": {}
+}
