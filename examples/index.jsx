@@ -8,11 +8,12 @@ import {createReducer} from 'redux-create-reducer';
 import {connect, Provider} from 'react-redux';
 
 import {Workspace, WorkspaceEditor} from '../src/index';
+import Project from '../src/models/project';
 
 import workspaceApp, {
   saga as workspaceSaga,
   initialState as workspaceInitialState,
-  supplyManagers
+  supply
 } from '../src/workspace/updater';
 
 import workspaceEditorApp, {
@@ -20,11 +21,23 @@ import workspaceEditorApp, {
   initialState as workspaceEditorInitialState
 } from '../src/workspace-editor/updater';
 
-const ConnectedWorkspace = connect(null, {
-  supplyManagers
+const ConnectedWorkspace = connect(({project}) => ({project}), {
+  supply
 })(Workspace);
 
 const ConnectedWorkspaceEditor = connect()(WorkspaceEditor);
+
+const devProject = new Project({
+  id: 'p-1234',
+  workspaceId: 'w-23428347',
+  master: {
+    kind: 'python',
+    conf: {
+      openFiles: ['/home/student_files/test.py'],
+      testCommand: 'python -i /home/student_files/test.py'
+    }
+  }
+});
 
 class Demo extends React.Component {
   constructor(props) {
@@ -49,7 +62,8 @@ class Demo extends React.Component {
 
     const defaultState = {
       workspace: workspaceInitialState,
-      editor: workspaceEditorInitialState
+      editor: workspaceEditorInitialState,
+      project: devProject
     };
 
     const store = createStore(

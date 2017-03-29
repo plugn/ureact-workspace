@@ -1,77 +1,48 @@
-import {take, call, fork, race} from 'redux-saga/effects';
+import {takeEvery} from 'redux-saga';
+import {actionChannel, fork, cancel, call} from 'redux-saga/effects';
+import uuid from 'uuid';
 
-const SUPPLY_MANAGERS = 'udacity/workspace/supply-managers';
-const SUPPLY_PROJECT = 'udacity/workspace/supply-project';
+const SUPPLY = 'udacity/workspace/supply-master';
 
-export function supplyManagers(socket, managers) {
+export function supply({saga, predicate, target}) {
+  if (!target) { target = uuid.v4(); }
+  if (!predicate) { predicate = () => true; }
+
   return {
-    type: SUPPLY_MANAGERS,
-    socket,
-    managers
+    type: SUPPLY,
+    target,
+    saga,
+    predicate
   };
 }
-
-export function supplyProject(project) {
-  return {
-    type: SUPPLY_PROJECT,
-    project
-  };
-}
-
-export const initialState = {
-  managers: {},
-  socket: null
-};
 
 // Reducer is no-op for now, all actions just manipulate sagas.
 //
 // There is no ephemeral state that doesn't live in managers today.
 function reducer(state) { return state; }
 
+export const initialState = {};
 export default reducer;
 
 export function* saga() {
-  // when we get managers, start other sagas, cancel them if we get another
-  let state = null;
+  let running = {};
 
-  while (true) {
-    const supply = yield take(SUPPLY_MANAGERS);
-
-    if (state) {
-      state.forEach(task => task.cancel());
+  yield takeEvery(SUPPLY, function* (supply) {
+    // If we already have something under that target, restart it.
+    if (running[supply.target]) {
+      const {task, channel} = running[supply.target];
+      yield cancel(task);
+      yield call(() => channel.close());
+      delete running[supply.target];
     }
 
-    state = [
-      yield fork(editorSaga, supply.editor),
-      yield fork(terminalSaga, supply.terminal),
-      yield fork(filesSaga, supply.files)
-    ];
-  }
+    // Get a channel for this saga.
+    const eventChannel = yield actionChannel(
+      (action) => action.target && action.target === supply.target && supply.predicate(action));
+
+    running[supply.target] = {
+      task: yield fork(supply.saga, eventChannel, supply.target),
+      channel: eventChannel
+    };
+  });
 }
-
-function* editorSaga(editorManager) {
-  if (!editorManager) {
-    return null; // Editor saga not needed
-  }
-
-  while (true) {
-    const {
-      setOpenFiles
-    } = yield race({
-      setOpenFiles: take(SET_OPEN_FILES)
-    });
-
-    if (setOpenFiles) {
-      yield call(() => editorManager.setOpenFiles(setOpenFiles.files));
-    }
-  }
-}
-
-function* terminalSaga(terminalManager) {
-
-}
-
-function* filesSaga(filesManager) {
-
-}
-
