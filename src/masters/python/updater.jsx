@@ -22,6 +22,8 @@ export function makeSaga(socket, managers, project) {
 
     while (true) {
       const action = yield take(events);
+
+      // read actions and spawn other sagas
     }
   };
 }

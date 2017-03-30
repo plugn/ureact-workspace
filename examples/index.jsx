@@ -1,10 +1,9 @@
 import React from 'react';
 import {render} from  'react-dom';
-import {createStore, compose, applyMiddleware} from 'redux';
+import {createStore, compose, applyMiddleware, combineReducers} from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import {fork} from 'redux-saga/effects';
 import {createLogger} from 'redux-logger';
-import {createReducer} from 'redux-create-reducer';
 import {connect, Provider} from 'react-redux';
 
 import {Workspace, WorkspaceEditor} from '../src/index';
@@ -21,9 +20,9 @@ import workspaceEditorApp, {
   initialState as workspaceEditorInitialState
 } from '../src/workspace-editor/updater';
 
-const ConnectedWorkspace = connect(({project}) => ({project}), {
-  supply
-})(Workspace);
+const ConnectedWorkspace = connect(
+  ({project, workspace}) => ({project, masterStates: workspace}),
+  {supply})(Workspace);
 
 const ConnectedWorkspaceEditor = connect()(WorkspaceEditor);
 
@@ -31,10 +30,10 @@ const devProject = new Project({
   id: 'p-1234',
   workspaceId: 'w-23428347',
   master: {
-    kind: 'python',
+    kind: 'react',
     conf: {
-      openFiles: ['/home/student_files/test.py'],
-      testCommand: 'python -i /home/student_files/test.py'
+      openFiles: ['/home/student_files/index.html'],
+      previewFile: '/home/student_files/index.html'
     }
   }
 });
@@ -66,14 +65,20 @@ class Demo extends React.Component {
       project: devProject
     };
 
+    const app = combineReducers({
+      workspace: workspaceApp,
+      editor: workspaceEditorApp,
+      project: (state = defaultState.project) => state
+    });
+
     const store = createStore(
-      createReducer(defaultState, {workspace: workspaceApp, editor: workspaceEditorApp}),
+      app,
       defaultState,
       compose(
         applyMiddleware(sagaMiddleware, createLogger()),
         devtools
       )
-    );
+      );
 
     sagaMiddleware.run(function* () {
       yield fork(workspaceSaga);
@@ -88,7 +93,7 @@ class Demo extends React.Component {
 
     return (<Provider store={this.state.store}>
       <div>
-        <ConnectedWorkspace server={'http://dev.udacity.com:8282'}/>
+        <ConnectedWorkspace target='workspace-1' server={'http://dev.udacity.com:8282'}/>
         <ConnectedWorkspaceEditor conf={this.state.conf} onChange={(conf) => this.setState({conf})}/>
       </div>
     </Provider>);

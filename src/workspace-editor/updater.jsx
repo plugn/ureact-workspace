@@ -26,7 +26,7 @@ export const initialState = {
 // Reducer is no-op for now, all actions just manipulate sagas.
 //
 // There is no ephemeral state that doesn't live in managers today.
-function reducer(state) { return state; }
+function reducer(state = initialState) { return state; }
 
 export default reducer;
 

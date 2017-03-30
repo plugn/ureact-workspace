@@ -4,7 +4,7 @@ import uuid from 'uuid';
 
 const SUPPLY = 'udacity/workspace/supply-master';
 
-export function supply({saga, predicate, target}) {
+export function supply({saga, predicate, reducer, initialState, target}) {
   if (!target) { target = uuid.v4(); }
   if (!predicate) { predicate = () => true; }
 
@@ -12,16 +12,55 @@ export function supply({saga, predicate, target}) {
     type: SUPPLY,
     target,
     saga,
+    reducer,
+    initialState,
     predicate
   };
 }
 
-// Reducer is no-op for now, all actions just manipulate sagas.
-//
-// There is no ephemeral state that doesn't live in managers today.
-function reducer(state) { return state; }
-
 export const initialState = {};
+
+function reducer(state = initialState, action) {
+  if (action.type === SUPPLY) {
+    if (!state[action.target]) {
+      return Object.assign({}, state, {
+        [action.target]: {
+          reducer: action.reducer || ((state) => state),
+          state: action.initialState || null
+        }
+      });
+    } else {
+      const newState = Object.assign({}, state[action.target]);
+
+      // Load new reducer
+      if (action.reducer) {
+        newState.reducer = action.reducer;
+      }
+
+      // Reset state
+      if (action.initialState) {
+        newState.state = action.initialState;
+      }
+
+      return Object.assign({}, state, {
+        [action.target]: Object.assign({}, state[action.target], newState)
+      });
+    }
+  } else if (action.target && state[action.target]) {
+    return Object.assign(
+      {},
+      state,
+      {[action.target]: Object.assign({}, state[action.target], {
+        state: state[action.target].reducer(
+          state[action.target].state,
+          action
+        )})
+      });
+  } else {
+    return state;
+  }
+}
+
 export default reducer;
 
 export function* saga() {
