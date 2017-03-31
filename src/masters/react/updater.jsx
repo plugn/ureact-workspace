@@ -57,12 +57,19 @@ export function testCode(target) {
 }
 
 export const initialState = {
-  renderControl: Date.now()
+  renderControl: Date.now(),
+  changesSaved: true
 };
 
 const reducer = createReducer(initialState, {
   [SET_RENDER_CONTROL](state, action) {
-    return Object.assign({}, state, {renderControl: action.renderControl});
+    return {renderControl: action.renderControl, ...state};
+  },
+  [ALL_CHANGES_SAVED](state) {
+    return {changesSaved: true, ...state};
+  },
+  [UNSAVED_CHANGES](state) {
+    return {changesSaved: false, ...state};
   }
 });
 
@@ -95,7 +102,7 @@ function* autoSaveSaga({
     fileSaveEvents.forEach(event =>
       files.events().on(event, editMade));
 
-    const interval = setInterval(saveInterval, editMade);
+    const interval = setInterval(editMade, saveInterval);
 
     return () => {
       editor.events().removeListener('edit', emitter);
@@ -127,6 +134,7 @@ function* autoSaveSaga({
   }
 
   yield takeLatest(inputChannel, function* () {
+    yield put(unsavedChanges(target));
     yield delay(saveDelay);
     yield call(save);
   });
