@@ -7,13 +7,15 @@ const SET_RENDER_CONTROL = 'udacity/workspace/react/set-render-control';
 const UNSAVED_CHANGES = 'udacity/workspace/react/unsaved-changes';
 const ALL_CHANGES_SAVED = 'udacity/workspace/react/all-changes-saved';
 
-export function makeSaga(socket, managers) {
+export function makeSaga(socket, managers, project) {
   return function* (events, target) {
     yield fork(autoSaveSaga, {
       editor: managers.editor,
       files: managers.files,
       target
     });
+
+    yield call(managers.editor.setOpenFiles, project.master.conf.openFiles);
 
     while (true) {
       const action = yield take(events);
@@ -63,13 +65,13 @@ export const initialState = {
 
 const reducer = createReducer(initialState, {
   [SET_RENDER_CONTROL](state, action) {
-    return {renderControl: action.renderControl, ...state};
+    return {...state, renderControl: action.renderControl};
   },
   [ALL_CHANGES_SAVED](state) {
-    return {changesSaved: true, ...state};
+    return {...state, changesSaved: true};
   },
   [UNSAVED_CHANGES](state) {
-    return {changesSaved: false, ...state};
+    return {...state, changesSaved: false};
   }
 });
 
