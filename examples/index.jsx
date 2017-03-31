@@ -32,8 +32,8 @@ const devProject = new Project({
   master: {
     kind: 'react',
     conf: {
-      openFiles: ['/home/student_files/index.html'],
-      previewFile: '/home/student_files/index.html'
+      openFiles: ['/home/workspace/index.html'],
+      previewFile: '/home/workspace/index.html'
     }
   }
 });
