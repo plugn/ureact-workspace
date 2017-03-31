@@ -1,77 +1,43 @@
-import {take, call, fork, race} from 'redux-saga/effects';
+import {createReducer} from 'redux-create-reducer';
+import Project from '../models/project';
 
-const SUPPLY_MANAGERS = 'udacity/workspace/supply-managers';
-const SUPPLY_PROJECT = 'udacity/workspace/supply-project';
+const SET_PROJECT = 'udacity/workspace-editor/set-project';
 
-export function supplyManagers(socket, managers) {
-  return {
-    type: SUPPLY_MANAGERS,
-    socket,
-    managers
-  };
+const devProject = new Project({
+  id: 'p-1234',
+  workspaceId: 'w-23428347',
+  master: {
+    kind: 'react',
+    conf: {
+      openFiles: ['/home/workspace/index.html'],
+      previewFile: '/home/workspace/index.html'
+    }
+  }
+});
+
+export const initialState = {
+  project: devProject
+};
+
+export function getProject(state) {
+  return state.project;
 }
 
-export function supplyProject(project) {
+export function setProject(project) {
   return {
-    type: SUPPLY_PROJECT,
+    type: SET_PROJECT,
     project
   };
 }
 
-export const initialState = {
-  managers: {},
-  socket: null
-};
-
-// Reducer is no-op for now, all actions just manipulate sagas.
-//
-// There is no ephemeral state that doesn't live in managers today.
-function reducer(state = initialState) { return state; }
+const reducer = createReducer(initialState, {
+  [SET_PROJECT](state, {project}) {
+    return {...state, project};
+  }
+});
 
 export default reducer;
 
 export function* saga() {
-  // when we get managers, start other sagas, cancel them if we get another
-  let state = null;
-
-  while (true) {
-    const supply = yield take(SUPPLY_MANAGERS);
-
-    if (state) {
-      state.forEach(task => task.cancel());
-    }
-
-    state = [
-      yield fork(editorSaga, supply.editor),
-      yield fork(terminalSaga, supply.terminal),
-      yield fork(filesSaga, supply.files)
-    ];
-  }
-}
-
-function* editorSaga(editorManager) {
-  if (!editorManager) {
-    return null; // Editor saga not needed
-  }
-
-  while (true) {
-    const {
-      setOpenFiles
-    } = yield race({
-      setOpenFiles: take(SET_OPEN_FILES)
-    });
-
-    if (setOpenFiles) {
-      yield call(() => editorManager.setOpenFiles(setOpenFiles.files));
-    }
-  }
-}
-
-function* terminalSaga(terminalManager) {
 
 }
-
-function* filesSaga(filesManager) {
-
-}
-

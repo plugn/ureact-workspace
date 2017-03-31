@@ -1,5 +1,5 @@
 import {eventChannel, delay, takeLatest, buffers} from 'redux-saga';
-import {take, call, put, fork} from 'redux-saga/effects';
+import {take, call, put, fork, cancelled} from 'redux-saga/effects';
 import {createReducer} from 'redux-create-reducer';
 
 const TEST_CODE = 'udacity/workspace/react/test-code';
@@ -90,54 +90,62 @@ function* autoSaveSaga({
   let version = 0;
   let savedVersion = 0;
 
-  const inputChannel = eventChannel(emitter => {
-    // TODO: Somehow put(unsavedChanges(target)) from here
-    function editMade() {
-      version += 1;
-      emitter({});
-    }
+  let inputChannel = true;
 
-    requestSave = editMade;
+  try {
+    inputChannel = eventChannel(emitter => {
+      // TODO: Somehow put(unsavedChanges(target)) from here
+      function editMade() {
+        version += 1;
+        emitter({});
+      }
 
-    editor.events().on('edit', editMade);
+      requestSave = editMade;
 
-    fileSaveEvents.forEach(event =>
-      files.events().on(event, editMade));
+      editor.events().on('edit', editMade);
 
-    const interval = setInterval(editMade, saveInterval);
+      fileSaveEvents.forEach(event =>
+        files.events().on(event, editMade));
 
-    return () => {
-      editor.events().removeListener('edit', emitter);
-      clearInterval(interval);
-      fileSaveEvents.forEach(
-        event => files.events().removeListener(event, editMade));
-    };
-  }, buffers.expanding(1000));
+      const interval = setInterval(editMade, saveInterval);
 
-  function* save() {
-    let startVersion = version;
-    try {
-      yield call(editor.saveAllFiles);
-      yield call(saveHook);
-      savedVersion = startVersion;
+      return () => {
+        editor.events().removeListener('edit', editMade);
+        clearInterval(interval);
+        fileSaveEvents.forEach(
+          event => files.events().removeListener(event, editMade));
+      };
+    }, buffers.expanding(1000));
 
-      if (version === savedVersion) {
-        yield put(allChangesSaved(target));
-      } else {
-        // Changes where made since we started saving, so try again.
+    function* save() {
+      let startVersion = version;
+      try {
+        yield call(editor.saveAllFiles);
+        yield call(saveHook);
+        savedVersion = startVersion;
+
+        if (version === savedVersion) {
+          yield put(allChangesSaved(target));
+        } else {
+          // Changes where made since we started saving, so try again.
+          yield delay(retrySpeed);
+          yield call(requestSave);
+        }
+
+      } catch (e) {
         yield delay(retrySpeed);
         yield call(requestSave);
       }
+    }
 
-    } catch (e) {
-      yield delay(retrySpeed);
-      yield call(requestSave);
+    yield call(takeLatest, inputChannel, function* () {
+      yield put(unsavedChanges(target));
+      yield delay(saveDelay);
+      yield call(save);
+    });
+  } finally {
+    if (yield cancelled()) {
+      yield call(() => inputChannel.close());
     }
   }
-
-  yield takeLatest(inputChannel, function* () {
-    yield put(unsavedChanges(target));
-    yield delay(saveDelay);
-    yield call(save);
-  });
 }

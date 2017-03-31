@@ -7,12 +7,17 @@ import reducer, {
 import {components, bootstrap, Socket, PanelManager} from '@udacity/web-terminal-client';
 const {Files, Editor, Layout} = components;
 import {ControlledFrame} from './frame';
+import ReactMasterConfigurator from './configurator.jsx';
 import {connect} from 'react-redux';
 
 @connect(null, {onTestCode: testCode})
 export default class ReactMaster extends React.Component {
   static kind() {
     return 'react';
+  }
+
+  static configurator() {
+    return ReactMasterConfigurator;
   }
 
   componentWillMount() {
@@ -39,18 +44,26 @@ export default class ReactMaster extends React.Component {
   }
 
   componentDidMount() {
+    this.startProject(this.props.project);
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.startProject(newProps.project);
+  }
+
+  componentWillUnmount() {
+    Promise.all(this.childrenUnmount).finally(() => this.teardown());
+  }
+
+  startProject(project) {
     // After our managers are initialized, and we have the project, pass them off.
-    const masterSaga = makeMasterSaga(this.socket, this.managers, this.props.project);
+    const masterSaga = makeMasterSaga(this.socket, this.managers, project);
     this.props.supply({
       saga: masterSaga,
       target: this.props.target,
       initialState,
       reducer
     });
-  }
-
-  componentWillUnmount() {
-    Promise.all(this.childrenUnmount).finally(() => this.teardown());
   }
 
   // Final cleanup after all children have unmounted.

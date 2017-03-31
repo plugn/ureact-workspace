@@ -7,36 +7,26 @@ import {createLogger} from 'redux-logger';
 import {connect, Provider} from 'react-redux';
 
 import {Workspace, WorkspaceEditor} from '../src/index';
-import Project from '../src/models/project';
 
-import workspaceApp, {
-  saga as workspaceSaga,
-  initialState as workspaceInitialState,
+import masterApp, {
+  saga as masterSaga,
+  initialState as masterInitialState,
   supply
-} from '../src/workspace/updater';
+} from '../src/masters/updater';
 
 import workspaceEditorApp, {
   saga as workspaceEditorSaga,
-  initialState as workspaceEditorInitialState
+  initialState as workspaceEditorInitialState,
+  getProject, setProject
 } from '../src/workspace-editor/updater';
 
 const ConnectedWorkspace = connect(
-  ({project, workspace}) => ({project, masterStates: workspace}),
+  ({editor, master}) => ({project: getProject(editor), masterStates: master}),
   {supply})(Workspace);
 
-const ConnectedWorkspaceEditor = connect()(WorkspaceEditor);
-
-const devProject = new Project({
-  id: 'p-1234',
-  workspaceId: 'w-23428347',
-  master: {
-    kind: 'react',
-    conf: {
-      openFiles: ['/home/workspace/index.html'],
-      previewFile: '/home/workspace/index.html'
-    }
-  }
-});
+const ConnectedWorkspaceEditor = connect(
+  ({editor, master}) => ({project: getProject(editor), masterStates: master}),
+  {supply, onChangeProject: setProject})(WorkspaceEditor);
 
 class Demo extends React.Component {
   constructor(props) {
@@ -60,15 +50,13 @@ class Demo extends React.Component {
     const sagaMiddleware = createSagaMiddleware();
 
     const defaultState = {
-      workspace: workspaceInitialState,
-      editor: workspaceEditorInitialState,
-      project: devProject
+      master: masterInitialState,
+      editor: workspaceEditorInitialState
     };
 
     const app = combineReducers({
-      workspace: workspaceApp,
-      editor: workspaceEditorApp,
-      project: (state = defaultState.project) => state
+      master: masterApp,
+      editor: workspaceEditorApp
     });
 
     const store = createStore(
@@ -81,7 +69,7 @@ class Demo extends React.Component {
       );
 
     sagaMiddleware.run(function* () {
-      yield fork(workspaceSaga);
+      yield fork(masterSaga);
       yield fork(workspaceEditorSaga);
     });
 
@@ -94,7 +82,7 @@ class Demo extends React.Component {
     return (<Provider store={this.state.store}>
       <div>
         <ConnectedWorkspace target='workspace-1' server={'http://dev.udacity.com:8282'}/>
-        <ConnectedWorkspaceEditor conf={this.state.conf} onChange={(conf) => this.setState({conf})}/>
+        <ConnectedWorkspaceEditor target='workspace-2' server={'http://dev.udacity.com:8282'}/>
       </div>
     </Provider>);
   }
