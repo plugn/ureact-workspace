@@ -8,14 +8,14 @@ export default class Workspace extends React.Component {
     }
 
     return (
-      <div style={{position: 'relative', height: '500px', width: '1000px'}}>
+      <div style={{position: 'relative', height: '500px', width: '600px'}}>
         <this.props.project.master.Master
           conf={this.props.project.master.conf}
           project={this.props.project}
           target={this.props.target}
           supply={this.props.supply}
           server={this.props.server}
-          state={this.props.master}
+          state={this.props.masterState}
         />
       </div>
     );

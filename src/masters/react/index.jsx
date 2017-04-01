@@ -10,7 +10,7 @@ import {ControlledFrame} from './frame';
 import ReactMasterConfigurator from './configurator.jsx';
 import {connect} from 'react-redux';
 
-@connect(null, (dispatch, {target}) => ({onTestCode: () => testCode(target)}))
+@connect(null, (dispatch, {target}) => ({onTestCode: () => dispatch(testCode(target))}))
 export default class ReactMaster extends React.Component {
   static kind() {
     return 'react';
@@ -108,26 +108,26 @@ export default class ReactMaster extends React.Component {
 
     return (
       <div className='theme_dark'>
-      <Layout
-        layout={{
-          override: true,
-          is_hidden: {},
-          maximized: '',
-          layout: {
-            type: 'horizontal',
-            parts: [
-              {weight: 3.0, type: 'vertical', parts: [
-                {weight: 5, type: 'horizontal', parts: [
-                  {weight: 1, key: 'files', component: filesPanel},
-                  {weight: 5, key: 'editor', component: editorPanel}
-                ]},
-                {weight: 4, key: 'react', component: reactPanel}
-              ]}
-            ]
-          }
-        }}
-      />
-        </div>
+        <Layout
+          layout={{
+            override: true,
+            is_hidden: {},
+            maximized: '',
+            layout: {
+              type: 'horizontal',
+              parts: [
+                {weight: 3.0, type: 'vertical', parts: [
+                  {weight: 5, type: 'horizontal', parts: [
+                    {weight: 1, key: 'files', component: filesPanel},
+                    {weight: 5, key: 'editor', component: editorPanel}
+                  ]},
+                  {weight: 4, key: 'react', component: reactPanel}
+                ]}
+              ]
+            }
+          }}
+        />
+     </div>
     );
   }
 }

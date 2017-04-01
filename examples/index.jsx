@@ -128,8 +128,14 @@ class Demo extends React.Component {
 
     return (<Provider store={this.state.store}>
       <div>
-        <ConnectedWorkspace target='workspace-view' server={'http://dev.udacity.com:8282'}/>
-        <ConnectedWorkspaceEditor target='workspace-editor' server={'http://dev.udacity.com:8282'}/>
+        <div style={{float: 'left'}}>
+          <ConnectedWorkspace target='workspace-view' server={'http://dev.udacity.com:8282'}/>
+        </div>
+
+        <div style={{float: 'right'}}>
+          <ConnectedWorkspaceEditor target='workspace-editor' server={'http://dev.udacity.com:8282'}/>
+        </div>
+
         <button
           onClick={() => this.state.store.dispatch(setProject(devProject, 'workspace-editor'))}>Set default project</button>
       </div>

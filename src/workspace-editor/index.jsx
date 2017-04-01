@@ -1,5 +1,7 @@
 import styles from './workspace-editor.scss';
 import Project from '../models/project';
+import {components, Socket, PanelManager} from '@udacity/web-terminal-client';
+const {Terminal, Layout} = components;
 
 class Settings extends React.Component {
   handleChangeProject(project) {
@@ -62,16 +64,60 @@ export default class WorkspaceEditor extends React.Component {
           project={this.props.project}
           onChangeProject={(p) => this.handleChangeProject(p)}
         />
-        <div style={{position: 'relative', height: '500px', width: '1000px', marginTop: 20}}>
+        <div style={{position: 'relative', height: '500px', width: '600px', marginTop: 20}}>
           <this.props.project.master.Master
             conf={this.props.project.master.conf}
             project={this.props.project}
             target={this.props.target}
             supply={this.props.supply}
             server={this.props.server}
-            state={this.props.master}
+            state={this.props.masterState}
           />
         </div>
+        <FreeTerminal server={this.props.server}/>
+      </div>
+    );
+  }
+}
+
+class FreeTerminal extends React.Component {
+  componentWillMount() {
+    this.socket = new Socket(this.props.server, 'username'); // TODO: Add username prop
+    this.terminalManager = new PanelManager();
+
+    this.terminalUnmountCallback = null;
+    this.terminalUnmounted = new Promise(resolve => this.terminalUnmountCallback = resolve);
+
+  }
+
+  componentDidMount() {
+    this.terminalManager.newTerm('free-shell', '/bin/bash');
+    this.focusInterval = setInterval(() =>
+      this.terminalManager.SelectTab('free-shell'), 200); // eslint-disable-line
+  }
+
+  componentWillUnmount() {
+    this.terminalUnmounted.finally(() => {
+      clearInterval(this.focusInterval);
+      this.socket.disconnect();
+    });
+  }
+
+  render() {
+    return (
+      <div style={{position: 'relative', width: '600px', height: '300px'}}>
+        <Layout
+          layout={{
+            override: true,
+            is_hidden: {},
+            maximized: '',
+            layout: {
+              weight: 1,
+              key: 'terminal',
+              component: <Terminal socket={this.socket} manager={this.terminalManager}/>
+            }
+          }}
+        />
       </div>
     );
   }
