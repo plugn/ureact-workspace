@@ -113,7 +113,7 @@ class FreeTerminal extends React.Component {
     );
 
     return (
-      <div style={{position: 'relative', width: '600px', height: '300px'}}>
+      <div className='theme_dark' style={{position: 'relative', width: '600px', height: '300px'}}>
         <Layout
           layout={{
             override: true,
