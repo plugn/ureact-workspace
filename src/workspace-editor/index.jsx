@@ -1,4 +1,5 @@
 import styles from './workspace-editor.scss';
+import Project from '../models/project';
 
 class Settings extends React.Component {
   handleChangeProject(project) {
@@ -35,12 +36,24 @@ export default class WorkspaceEditor extends React.Component {
   }
 
   render() {
-    let masterState = this.props.masterStates[this.props.target];
+    const devProject = new Project({
+      id: 'p-1234',
+      workspaceId: 'w-23428347',
+      master: {
+        kind: 'react',
+        conf: {
+          openFiles: ['/home/workspace/index.html'],
+          previewFile: '/home/workspace/index.html'
+        }
+      }
+    });
 
-    if (masterState) {
-      masterState = masterState.state;
-    } else {
-      masterState = null;
+    if (!this.props.project) {
+      return (<h2>
+        No Project Specified!
+        {/* TODO: Create dialogue for initial creation of project. */}
+        <button onClick={() => this.handleChangeProject(devProject)}>Set default project/create new project</button>
+      </h2>);
     }
 
     return (
@@ -56,7 +69,7 @@ export default class WorkspaceEditor extends React.Component {
             target={this.props.target}
             supply={this.props.supply}
             server={this.props.server}
-            state={masterState}
+            state={this.props.master}
           />
         </div>
       </div>

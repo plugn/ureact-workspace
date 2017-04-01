@@ -3,12 +3,8 @@ import styles from './workspace.scss';
 @cssModule(styles)
 export default class Workspace extends React.Component {
   render() {
-    let masterState = this.props.masterStates[this.props.target];
-
-    if (masterState) {
-      masterState = masterState.state;
-    } else {
-      masterState = null;
+    if (!this.props.project) {
+      return <h2>No Project Specified!</h2>;
     }
 
     return (
@@ -19,7 +15,7 @@ export default class Workspace extends React.Component {
           target={this.props.target}
           supply={this.props.supply}
           server={this.props.server}
-          state={masterState}
+          state={this.props.master}
         />
       </div>
     );

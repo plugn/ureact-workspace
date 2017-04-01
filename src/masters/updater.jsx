@@ -18,6 +18,10 @@ export function supply({saga, predicate, reducer, initialState, target}) {
   };
 }
 
+export function getState(state, target) {
+  return state[target] && state[target].state;
+}
+
 export const initialState = {};
 
 function reducer(state = initialState, action) {

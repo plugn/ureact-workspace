@@ -7,11 +7,12 @@ import {createLogger} from 'redux-logger';
 import {connect, Provider} from 'react-redux';
 
 import {Workspace, WorkspaceEditor} from '../src/index';
+import Project from '../src/models/project';
 
 import masterApp, {
   saga as masterSaga,
   initialState as masterInitialState,
-  supply
+  supply, getState
 } from '../src/masters/updater';
 
 import workspaceEditorApp, {
@@ -21,12 +22,58 @@ import workspaceEditorApp, {
 } from '../src/workspace-editor/updater';
 
 const ConnectedWorkspace = connect(
-  ({editor, master}) => ({project: getProject(editor), masterStates: master}),
-  {supply})(Workspace);
+  ({editor, master}) => ({editorStates: editor, masterStates: master}),
+  (dispatch, ownProps) => {
+    return {
+      supply: (opts) =>
+        dispatch(supply({
+          target: ownProps.target,
+          ...opts
+        }))
+    };
+  },
+  ({editorStates, masterStates}, dispatchProps, ownProps) => {
+    return {
+      ...dispatchProps,
+      ...ownProps,
+      project: getProject(editorStates, 'workspace-editor'),
+      masterState: getState(masterStates, ownProps.target)
+    };
+  })(Workspace);
 
 const ConnectedWorkspaceEditor = connect(
-  ({editor, master}) => ({project: getProject(editor), masterStates: master}),
-  {supply, onChangeProject: setProject})(WorkspaceEditor);
+  ({editor, master}) => ({editorStates: editor, masterStates: master}),
+  (dispatch, ownProps) => {
+    return {
+      supply: (opts) =>
+        dispatch(supply({
+          target: ownProps.target,
+          ...opts
+        })),
+      onChangeProject: (project) =>
+        dispatch(setProject(project, ownProps.target))
+    };
+  },
+  ({editorStates, masterStates}, dispatchProps, ownProps) => {
+    return {
+      ...dispatchProps,
+      ...ownProps,
+      project: getProject(editorStates, ownProps.target),
+      masterState: getState(masterStates, ownProps.target)
+    };
+  })(WorkspaceEditor);
+
+const devProject = new Project({
+  id: 'p-1234',
+  workspaceId: 'w-23428347',
+  master: {
+    kind: 'react',
+    conf: {
+      openFiles: ['/home/workspace/index.html'],
+      previewFile: '/home/workspace/index.html'
+    }
+  }
+});
 
 class Demo extends React.Component {
   constructor(props) {
@@ -81,8 +128,10 @@ class Demo extends React.Component {
 
     return (<Provider store={this.state.store}>
       <div>
-        <ConnectedWorkspace target='workspace-1' server={'http://dev.udacity.com:8282'}/>
-        <ConnectedWorkspaceEditor target='workspace-2' server={'http://dev.udacity.com:8282'}/>
+        <ConnectedWorkspace target='workspace-view' server={'http://dev.udacity.com:8282'}/>
+        <ConnectedWorkspaceEditor target='workspace-editor' server={'http://dev.udacity.com:8282'}/>
+        <button
+          onClick={() => this.state.store.dispatch(setProject(devProject, 'workspace-editor'))}>Set default project</button>
       </div>
     </Provider>);
   }

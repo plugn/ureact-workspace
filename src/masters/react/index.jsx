@@ -10,7 +10,7 @@ import {ControlledFrame} from './frame';
 import ReactMasterConfigurator from './configurator.jsx';
 import {connect} from 'react-redux';
 
-@connect(null, {onTestCode: testCode})
+@connect(null, (dispatch, {target}) => ({onTestCode: () => testCode(target)}))
 export default class ReactMaster extends React.Component {
   static kind() {
     return 'react';
@@ -73,7 +73,7 @@ export default class ReactMaster extends React.Component {
   }
 
   testCode() {
-    this.props.onTestCode && this.props.onTestCode(this.props.target);
+    this.props.onTestCode && this.props.onTestCode();
   }
 
   render() {
