@@ -104,6 +104,14 @@ class FreeTerminal extends React.Component {
   }
 
   render() {
+    const terminalPanel = (
+      <Terminal
+        onUnmount={() => this.terminalUnmountCallback()}
+        socket={this.socket}
+        manager={this.terminalManager}
+      />
+    );
+
     return (
       <div style={{position: 'relative', width: '600px', height: '300px'}}>
         <Layout
@@ -114,7 +122,7 @@ class FreeTerminal extends React.Component {
             layout: {
               weight: 1,
               key: 'terminal',
-              component: <Terminal socket={this.socket} manager={this.terminalManager}/>
+              component: terminalPanel
             }
           }}
         />
