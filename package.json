@@ -2,7 +2,7 @@
   "name": "@udacity/ureact-workspace",
   "description": "Workspace and WorkspaceEditor components for rendering and configuring student workspaces",
   "repository": "https://github.com/udacity/ureact-workspace",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "ucrtools:bump": "ucrtools b",
     "ucrtools:changelog": "ucrtools c",

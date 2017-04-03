@@ -1,3 +1,13 @@
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/udacity/ureact-workspace/compare/0.1.0...0.2.0) (2017-04-03)
+
+
+### Bug Fixes
+
+* **all:** Actually export all needed values. ([bee39f3](https://github.com/udacity/ureact-workspace/commit/bee39f3))
+
+
+
 <a name="0.1.0"></a>
 # 0.1.0 (2017-04-03)
 
