@@ -1,3 +1,13 @@
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/udacity/ureact-workspace/compare/0.2.0...0.3.0) (2017-04-04)
+
+
+### Bug Fixes
+
+* **dependencies:** Moves dependencies and removes .jsx extension from import statement to resolve dependencies ([9c4cba1](https://github.com/udacity/ureact-workspace/commit/9c4cba1))
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://github.com/udacity/ureact-workspace/compare/0.1.0...0.2.0) (2017-04-03)
 

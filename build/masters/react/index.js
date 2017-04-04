@@ -16,7 +16,7 @@ var Files = components.Files,
     Layout = components.Layout;
 
 import { ControlledFrame } from './frame';
-import ReactMasterConfigurator from './configurator.jsx';
+import ReactMasterConfigurator from './configurator';
 import { connect } from 'react-redux';
 
 var ReactMaster = (_dec = connect(null, function (dispatch, _ref) {
