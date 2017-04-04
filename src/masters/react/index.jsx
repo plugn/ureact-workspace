@@ -7,7 +7,7 @@ import reducer, {
 import {components, bootstrap, Socket, PanelManager} from '@udacity/web-terminal-client';
 const {Files, Editor, Layout} = components;
 import {ControlledFrame} from './frame';
-import ReactMasterConfigurator from './configurator.jsx';
+import ReactMasterConfigurator from './configurator';
 import {connect} from 'react-redux';
 
 @connect(null, (dispatch, {target}) => ({onTestCode: () => dispatch(testCode(target))}))

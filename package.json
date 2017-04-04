@@ -28,9 +28,7 @@
     "build"
   ],
   "dependencies": {
-    "@udacity/ureact-styles": "^1.6.0"
-  },
-  "devDependencies": {
+    "@udacity/ureact-styles": "^1.6.0",
     "@udacity/eslint-config-ureact": "^1.0.10",
     "@udacity/ureact-package": "^3.1.0",
     "@udacity/web-terminal-client": "^1.2.0",
